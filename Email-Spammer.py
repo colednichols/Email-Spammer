@@ -1,48 +1,74 @@
-import smtplib, ssl
-
-port = 465  # For SSL
-
-print("This program has been designed by Cole Nichols.\nIn order for it to work, you must have enabled 'less secure app access' in your google account settings.\nNo information you input will be collected.\n")
-email = input("Your Email Address:")
-password = str(input("Password: "))
-
-# Create a secure SSL context
+import smtplib
+import ssl
+import time
+loop_count = 0
+limit = 0
 context = ssl.create_default_context()
 
-with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+print("Infinite Spammer\nCole Nichols\n")
+
+# User Input
+print("Enter the information below.")
+while True:
+    email = input("Your Email Address: ")
+    password = str(input("Password: "))
     try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(email, password)
+        print("Login Successful!\n")
+        break
+    except smtplib.SMTPHeloError:
+        print("The server didn’t reply properly to the HELO greeting.")
+    except smtplib.SMTPAuthenticationError:
+        print("The server didn’t accept the username/password combination.\n")
+    except smtplib.SMTPNotSupportedError:
+        print("The AUTH command is not supported by the server.")
+    except smtplib.SMTPException:
+        print("No suitable authentication method was found.")
+while True:
+    try:
+        goal_count = int(input("Email count: "))
+        break
+    except ValueError:
+        print("Invalid input")
+recipient = input("Email Recipient [self]: ")
+if len(recipient) == 0:
+    recipient = email
+subject = input("Email Subject: ")
+body = input("Email Body: ")
+message = "Subject: " + subject + "\n\n" + body
+
+while loop_count < goal_count:
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(email, password)
-    except:
-        print("Something went wrong. Make sure your email and password are correct.")
-        quit()
-    print("Connection Successful")
-
-    while True:
-        # User Input
-        email_count = int(input("\nEmail Count: "))
-        recipient = input("Email Recipient [self]: ")
-        if len(recipient) == 0:
-            recipient = email
-        subject = input("Email Subject: ")
-        body = input("Email Body: ")
-        message = "Subject: " + subject + "\n\n" + body
-
-        # Send emails
-        print("\n" + email_count.__str__() + " emails will be sent to " + recipient + ".")
-        confirm = input("Confirm? [Y]/N")
-        print()
-        if confirm != "N" and confirm != "n":
-            loop_count = 0
-            print("Sending Emails")
-            while loop_count < email_count:
+        while loop_count < goal_count:
+            try:
                 server.sendmail(email, recipient, message)
                 loop_count += 1
-                print("Emails sent: " + loop_count.__str__() + "/" + email_count.__str__())
-            print("Done\n")
-
-        # Send more?
-        repeat = input("Would you like to send more emails? [Y]/N")
-        if repeat == "N" and repeat == "n":
-            break
-
-print("Session ended")
+                limit = 0
+                print("Emails sent: " + loop_count.__str__())
+            except smtplib.SMTPRecipientsRefused:
+                print("All recipients were refused. Nobody got the mail. Trying again...")
+                time.sleep(3)
+                break
+            except smtplib.SMTPHeloError:
+                print("The server didn’t reply properly to the HELO greeting. Trying again...")
+                time.sleep(3)
+                break
+            except smtplib.SMTPSenderRefused:
+                if limit != 1:
+                    print("Limit reached: Waiting for connection to reopen...")
+                    limit = 1
+            except smtplib.SMTPDataError:
+                print("The server replied with an unexpected error code. Trying again...")
+                time.sleep(3)
+                break
+            except smtplib.SMTPNotSupportedError:
+                print("SMTPUTF8 was given in the mail_options but is not supported by the server. Trying again...")
+                time.sleep(3)
+                break
+            if limit == 1:
+                time.sleep(10)
+                print("Limit reached: Waiting for connection to reopen...")
+                break
+print("Done")
