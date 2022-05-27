@@ -5,7 +5,7 @@ loop_count = 0
 limit = 0
 context = ssl.create_default_context()
 
-print("Infinite Spammer\nCole Nichols\n")
+print("Email Spammer\nCole Nichols\n\n")
 
 # User Input
 print("Enter the information below.")
