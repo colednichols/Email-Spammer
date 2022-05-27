@@ -17,13 +17,13 @@ while True:
             server.login(email, password)
         print("Login Successful!\n")
         break
-    except "SMTPHeloError":
+    except smtplib.SMTPHeloError:
         print("The server didn’t reply properly to the HELO greeting.")
-    except "SMTPAuthenticationError":
+    except smtplib.SMTPAuthenticationError:
         print("The server didn’t accept the username/password combination.\n")
-    except "SMTPNotSupportedError":
+    except smtplib.SMTPNotSupportedError:
         print("The AUTH command is not supported by the server.")
-    except "SMTPException":
+    except smtplib.SMTPException:
         print("No suitable authentication method was found.")
 recipient = input("Email Recipient [self]: ")
 if len(recipient) == 0:
@@ -41,23 +41,23 @@ while True:
                 loop_count += 1
                 limit = 0
                 print("Emails sent: " + loop_count.__str__())
-            except "SMTPRecipientsRefused":
+            except smtplib.SMTPRecipientsRefused:
                 print("All recipients were refused. Nobody got the mail. Trying again...")
                 time.sleep(3)
                 break
-            except "SMTPHeloError":
+            except smtplib.SMTPHeloError:
                 print("The server didn’t reply properly to the HELO greeting. Trying again...")
                 time.sleep(3)
                 break
-            except "SMTPSenderRefused":
+            except smtplib.SMTPSenderRefused:
                 if limit != 1:
                     print("Limit reached: Waiting for connection to reopen...")
                     limit = 1
-            except "SMTPDataError":
+            except smtplib.SMTPDataError:
                 print("The server replied with an unexpected error code. Trying again...")
                 time.sleep(3)
                 break
-            except "SMTPNotSupportedError":
+            except smtplib.SMTPNotSupportedError:
                 print("SMTPUTF8 was given in the mail_options but is not supported by the server. Trying again...")
                 time.sleep(3)
                 break
